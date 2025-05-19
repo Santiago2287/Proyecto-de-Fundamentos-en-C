@@ -1,1 +1,1 @@
-# Mi Proyecto en C
+# Proyecto en C

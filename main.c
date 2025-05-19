@@ -47,9 +47,9 @@ char productos[NUM_PRODUCTOS][NUM_ATRIBUTOS][CAPACIDAD_MAX]={
         // Sus 4 clientes
         {
             {"1", "Ana Martinez Lopez", "ana.martinez.lopez@gmail.com", "+52 55 1111 2222"},
-            {"2", "Carlos González Ruiz", "carlos.gonzalez.ruiz@gmail.com", "+52 55 2222 3333"},
-            {"3", "Lucía Fernández Díaz", "lucia.fernandez.diaz@gmail.com", "+52 55 3333 4444"},
-            {"4", "Jorge Sánchez Pérez", "jorge.sanchez.perez@gmail.com", "+52 55 4444 5555"}
+            {"2", "Carlos Gonzalez Ruiz", "carlos.gonzalez.ruiz@gmail.com", "+52 55 2222 3333"},
+            {"3", "Lucia Fernandez Diaz", "lucia.fernandez.diaz@gmail.com", "+52 55 3333 4444"},
+            {"4", "Jorge Sanchez Perez", "jorge.sanchez.perez@gmail.com", "+52 55 4444 5555"}
         }
     },
     
@@ -57,10 +57,10 @@ char productos[NUM_PRODUCTOS][NUM_ATRIBUTOS][CAPACIDAD_MAX]={
     {
         {"V002", "Maria Garcia", "maria.garcia@empresa.com","+52 55 2000 3000"},
         {
-            {"5", "María Rodríguez García", "maria.rodriguez.garcia@gmail.com", "+52 55 5555 6666"},
-            {"6", "Pedro Gómez Martín", "pedro.gomez.martin@gmail.com", "+52 55 6666 7777"},
-            {"7", "Sofía Hernández Jiménez", "sofia.hernandez.jimenez@gmail.com", "+52 55 7777 8888"},
-            {"8", "Alejandro López Castro", "alejandro.lopez.castro@gmail.com", "+52 55 8888 9999"}
+            {"5", "Maria Rodriguez Garcia", "maria.rodriguez.garcia@gmail.com", "+52 55 5555 6666"},
+            {"6", "Pedro Gomez Martin", "pedro.gomez.martin@gmail.com", "+52 55 6666 7777"},
+            {"7", "Sofia Hernandez Jimenez", "sofia.hernandez.jimenez@gmail.com", "+52 55 7777 8888"},
+            {"8", "Alejandro Lopez Castro", "alejandro.lopez.castro@gmail.com", "+52 55 8888 9999"}
         }
     },
     
@@ -68,9 +68,9 @@ char productos[NUM_PRODUCTOS][NUM_ATRIBUTOS][CAPACIDAD_MAX]={
     {
         {"V003", "Carlos Lopez", "carlos.lopez@empresa.com", "+52 55 3000 4000"},
         {
-            {"9", "Elena Ramírez Navarro", "elena.ramirez.navarro@gmail.com", "+52 55 9999 0000"},
+            {"9", "Elena Ramirez Navarro", "elena.ramirez.navarro@gmail.com", "+52 55 9999 0000"},
             {"10", "David Torres Ortega", "david.torres.ortega@gmail.com", "+52 55 0000 1111"},
-            {"11", "Isabel Flores Méndez", "isabel.flores.mendez@gmail.com", "+52 55 1212 3434"},
+            {"11", "Isabel Flores Mendez", "isabel.flores.mendez@gmail.com", "+52 55 1212 3434"},
             {"12", "Ricardo Vargas Soto", "ricardo.vargas.soto@gmail.com", "+52 55 4545 6767"}
         }
     }
@@ -115,7 +115,7 @@ int seleccionar_cliente(int v){
     do{
         printf("Clientes del vendedores seleccionado: \n");
         for(int i=0;i < 4; i++){
-            printf("    %s-.  Nombre:  %s  Contacto: %s\n", clientes_vendedores[v][1][i][0], clientes_vendedores[v][1][i][1],  clientes_vendedores[v][1][i][2]);    // Vendedor Nombre y contacto 
+            printf("    %d-.  Nombre:  %s  Contacto: %s\n", i + 1, clientes_vendedores[v][1][i][1],  clientes_vendedores[v][1][i][2]);    // Vendedor Nombre y contacto 
         }
         printf("Seleccione el numero del cliente de la compra: ");
         scanf("%d",&c);
@@ -123,46 +123,74 @@ int seleccionar_cliente(int v){
     return c-1;
 }
 
-void finalizar_Comprar(){
+void finalizar_Comprar(float subtotal,int cantidadTotalProducto, int v, int c) {
+    int d, m, a;
+    float cantidadRecibida, pagoTotal, cambio;
 
+    // fecha para luego firtral en el reporte, CHISPASSSSS
+    printf("Dia (1-31): ");   scanf("%d", &d);
+    printf("Mes (1-12): ");   scanf("%d", &m);
+    printf("Year (Ejemplo. 2025): "); scanf("%d", &a);
+
+    printf("Total a pagar: %.2f\n", subtotal);
+    do {
+        printf("Pago recibido: ");
+        scanf("%f", &cantidadRecibida);
+        pagoTotal+=cantidadRecibida;
+        if (pagoTotal < subtotal)
+            printf("  Faltan %.2f\n", subtotal - pagoTotal);
+    } while (pagoTotal <= subtotal);
+    cambio = (subtotal - pagoTotal) * -1;
+    printf("Cambio: %.2f\n\n", cambio);
+
+    // abirmos el archimo que esta sepado por comas y comas
+    FILE *f = fopen("ventas.csv", "a");
+    if (!f) {
+        printf("Error al abrir ventas.csv\n");
+        return;
+    }
+    //           día,mes,año,vendedor,cliente,total
+    fprintf(f, "%02d,%02d,%04d,%d,%d,%.2f\n",d, m, a,v, c,subtotal);
+    fclose(f);
+
+    printf("Venta guardada en archivo.\n\n");
 }
 
 void registrarCompra(){
     int v = seleccionar_Vendedor();
     int c = seleccionar_cliente(v);
     mostrar_Menu_Productos();
-    int opcionProducto = 1, cantidad = 0;
+    printf("\n %s", clientes_vendedores[v][1][c][1] );
+    int opcionProducto = 1, cantidadTotal = 0 , cantidadXProducto;
     float precioProducto=0,precioTotalProducto=0, subtotal=0, total= 0;
     while (opcionProducto!=0){
-        printf("%d %d \n",opcionProducto, cantidad);
-        opcionProducto = 0, cantidad = 0;
+        
+        opcionProducto = 0, cantidadXProducto = 0;
         printf("Elige el numero del producto a elegir: "), scanf("%d",&opcionProducto);
         if(opcionProducto==0){
             break;
         }else if(opcionProducto==5){
-            finalizar_Comprar();
+            finalizar_Comprar(subtotal,cantidadTotal, v, c);
+            break;
         }
-        printf(" Cantidad a escojer: "), scanf("%d", &cantidad);
-        if(cantidad>=3 && cantidad <= 50){
+        printf(" Cantidad a escojer: "), scanf("%d", &cantidadXProducto);
+        cantidadTotal+=cantidadXProducto;
+        if(cantidadXProducto>=3 && cantidadXProducto <= 50){
             //Se activa el mayoreo
             precioProducto = atof(productos[opcionProducto-1][2]);
-        }else if (cantidad > 0 ){
+        }else if (cantidadXProducto > 0 ){
             //No se activa el mayoreo pipipipipi
             precioProducto = atof(productos[opcionProducto-1][3]);
         }else{
             printf("----ERROR----");
         }
-        precioTotalProducto =   precioProducto * cantidad; 
-        printf("%.2f\n", precioTotalProducto);
+        precioTotalProducto =   precioProducto * cantidadXProducto; 
         subtotal+= precioTotalProducto;
-        printf("%.2f\n", subtotal);
-
-         precioTotalProducto = precioProducto * cantidad;
-        subtotal += precioTotalProducto;
+        total+=subtotal;
         
         printf("\nResumen parcial:\n");
-        printf("Producto: %s\n", productos[opcionProducto-1][1]);
-        printf("Cantidad: %d\n", cantidad);
+        printf("Producto: %s\n", productos[opcionProducto-1][0]);
+        printf("Cantidad: %d\n", cantidadXProducto);
         printf("Precio unitario: %.2f\n", precioProducto);
         printf("Total producto: %.2f\n", precioTotalProducto);
         printf("Subtotal acumulado: %.2f\n\n", subtotal);
@@ -175,10 +203,6 @@ int main(){
     
     int opcion;
      do {
-        printf("  ID: %s\n", clientes_vendedores[0][1][3][0]);       // Vendedor ID
-        printf("  Nombre: %s\n", clientes_vendedores[0][1][3][1]);    // Vendedor Nombre
-        printf("  Contacto: %s\n", clientes_vendedores[0][1][3][2]);
-
         printf("\n");
         printf("========================================\n");
         printf("|        SISTEMA DE VENTAS - EMPRESA   |\n");
@@ -194,7 +218,6 @@ int main(){
         switch (opcion) {
             case 1:
                 printf("\n-- REGISTRO DE COMPRA --\n");
-                
                 registrarCompra();
                 //suma = atof(productos[0][2]) + atof(productos[0][3]);
                 //printf("%.2f", suma);

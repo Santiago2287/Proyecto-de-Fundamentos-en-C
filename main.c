@@ -104,7 +104,7 @@ int seleccionar_Vendedor(){
         for(int i=0;i < 3; i++){
             printf("    %d-.  Nombre:  %s  Contacto: %s\n", i+1, clientes_vendedores[i][0][0][1],  clientes_vendedores[i][0][0][2]);    // Vendedor Nombre y contacto 
         }
-        printf("Seleccione el numero del vendedor a registrar la compra: ");
+        printf("Seleccione el numero del vendedor: ");
         scanf("%d",&v);
     }while (v < 1 || v > 3);
     return v-1;
@@ -215,7 +215,7 @@ void mostrar_reporte_mensual(){
 
     printf("\nVentas del mes %d:\n", mesBuscado);
     int day, month, year, v, c, qty, cont = 0; // los datos que vamos a recibir del archivo .cvs, execto el cont ese es un contador para un ciclo
-    float total;
+    float total, totalVendedor;
 
     // recorrer las lineas 
     while (fgets(linea, sizeof(linea), f)) {
@@ -227,7 +227,7 @@ void mostrar_reporte_mensual(){
                 printf("%2d) %02d/%02d/%04d | Id Vendedor: %s | Vendedor: %s | Cliente: %s | Cantidad: %d | Total: %.2f\n",cont,day, month, year,
                        clientes_vendedores[v][0][0][0], //es el id del vendedor
                        clientes_vendedores[v][0][0][1], // name del vendedor
-                       clientes_vendedores[v][1][0][1],  //name del cliente
+                       clientes_vendedores[v][1][c][1],  //name del cliente
                        qty,
                        total);
             }
@@ -242,6 +242,60 @@ void mostrar_reporte_mensual(){
     fclose(f);
 }
 
+float total_Venta_Vendedor(int IdVendedor, int mes){
+    FILE *f = fopen("ventas.csv", "r");
+    if (!f) {
+        printf("No existe ventas.csv\n");
+        return 0.0f;
+    }
+
+    char linea[64];
+    int day, month, year, v, c, qty;
+    float total, sumatoria = 0.0f;
+
+    while (fgets(linea, sizeof(linea), f)) {
+        if (sscanf(linea, "%d,%d,%d,%d,%d,%d,%f",
+                   &day, &month, &year,
+                   &v, &c, &qty, &total) == 7)
+        {
+            if (v == IdVendedor && month == mes) {
+                sumatoria += total;
+            }
+        }
+    }
+    fclose(f);
+    return sumatoria;
+}
+
+
+void calcular_Nomina(){
+    int v = 0,m, horasTrabajadas=0;
+    float pagoHora= 60, ventaTotalV,bonoVentas, bonoGas=200.00, subsueldo, impuesto, totalSueldo;
+    v = seleccionar_Vendedor();
+    printf("¿Mes (1-12)? ");      scanf("%d", &m);
+    
+    printf("Cuantas horas trabajo(Di un numero entero)"), scanf("%d", &horasTrabajadas);
+    subsueldo = pagoHora * horasTrabajadas;
+    impuesto = subsueldo * 0.10;
+
+    ventaTotalV = total_Venta_Vendedor(v, m);
+    printf("Venta del vendedor es %.2f \n", ventaTotalV);
+    bonoVentas = ventaTotalV * 0.05;
+    totalSueldo+=subsueldo;
+    totalSueldo-=impuesto;
+    totalSueldo+=bonoGas;
+    totalSueldo+=bonoVentas;
+
+    printf("Sueldo base    (%d h x %.2f) : %.2f\n",
+           horasTrabajadas, pagoHora, subsueldo);
+    printf("(-) Retencion 10%%          : -%.2f\n", impuesto);
+    printf("(+) Bono gasolina         : +%.2f\n", bonoGas);
+    printf("(+) Comision 5%% sobre %.2f : +%.2f\n",
+           ventaTotalV, bonoVentas);
+    printf("------------------------------\n");
+    printf("= Sueldo neto            :  %.2f\n\n", totalSueldo);
+
+}
 
 
 int main(){
@@ -276,7 +330,7 @@ int main(){
                 break;
             case 3:
                 printf("\n-- CALCULO DE NÓMINA --\n");
-                //calcular_nomina();
+                calcular_Nomina();
 
                 system("pause");
                 break;

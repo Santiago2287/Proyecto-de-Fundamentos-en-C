@@ -150,7 +150,7 @@ void finalizar_Comprar(float subtotal,int cantidadTotalProducto, int v, int c) {
         return;
     }
     //           día,mes,año,vendedor,cliente,total
-    fprintf(f, "%02d,%02d,%04d,%d,%d,%.2f\n",d, m, a,v, c,subtotal);
+    fprintf(f, "%02d,%02d,%04d,%d,%d,%d,%.2f\n",d, m, a,v, c,cantidadTotalProducto,subtotal);
     fclose(f);
 
     printf("Venta guardada en archivo.\n\n");
@@ -199,6 +199,51 @@ void registrarCompra(){
      
 }
 
+void mostrar_reporte_mensual(){
+    
+    int mesBuscado;
+    char linea[64]; // maximo de caracteres leeidos por linea en el archivo
+    
+    printf("Que mes (1-12) quieres reportar? "), scanf("%d", &mesBuscado);
+
+    // abrir el archivo             R de read en inglish
+    FILE *f = fopen("ventas.csv", "r");
+    if (!f) {
+        printf("No se encontró el archivo ventas.csv\n");
+        return;
+    }
+
+    printf("\nVentas del mes %d:\n", mesBuscado);
+    int day, month, year, v, c, qty, cont = 0; // los datos que vamos a recibir del archivo .cvs, execto el cont ese es un contador para un ciclo
+    float total;
+
+    // recorrer las lineas 
+    while (fgets(linea, sizeof(linea), f)) {
+        
+        if (sscanf(linea, "%d,%d,%d,%d,%d,%d,%f",&day, &month, &year,&v, &c,&qty, &total) == 7) {
+            
+            if (month == mesBuscado) {
+                cont++;
+                printf("%2d) %02d/%02d/%04d | Id Vendedor: %s | Vendedor: %s | Cliente: %s | Cantidad: %d | Total: %.2f\n",cont,day, month, year,
+                       clientes_vendedores[v][0][0][0], //es el id del vendedor
+                       clientes_vendedores[v][0][0][1], // name del vendedor
+                       clientes_vendedores[v][1][0][1],  //name del cliente
+                       qty,
+                       total);
+            }
+        }
+    }
+
+    if (cont == 0) {
+        printf("No hubo ventas en ese mes.\n");
+    }
+    printf("\n");
+
+    fclose(f);
+}
+
+
+
 int main(){
     
     int opcion;
@@ -225,23 +270,14 @@ int main(){
                 break;
             case 2:
                 printf("\n-- REPORTE DE VENTAS --\n");
-                //printf("%s", clientes[2][0][0]);
-                //printf("%s", clientes[2][1][0]);
-                //printf("%s", vendedores[1][0]);
-                //mostrarReporte();
-                printf("  ID: %s\n", clientes_vendedores[0][0][0]);
-            printf("  Nombre: %s\n", clientes_vendedores[0][0][1]);
-            printf("  Contacto: %s\n", clientes_vendedores[0][0][2]);
+                mostrar_reporte_mensual();
 
                 system("pause");
                 break;
             case 3:
                 printf("\n-- CALCULO DE NÓMINA --\n");
-                
-                for(int i = 0;i<3;i++){
-                    printf("%s \n", clientes_vendedores[i][4]);
-                }
-                //calcularNomina();
+                //calcular_nomina();
+
                 system("pause");
                 break;
             case 4:

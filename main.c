@@ -93,14 +93,14 @@ char productos[NUM_PRODUCTOS][NUM_ATRIBUTOS][CAPACIDAD_MAX]={
 void mostrar_Menu_Productos(){
         system("cls");
         printf("---------------------------------------------------------------------\n");
-        printf("|                         LISTA DE ARTICULOS                        |\n");
+        printf("|                  LISTA DE ARTICULOS Y OPCIONES                     |\n");
         printf("---------------------------------------------------------------------\n");
     for(int i=0;i < NUM_PRODUCTOS; i++){
         printf("  %d- Nombre del Producto: %s \n    Descripcion: %s \n    Precio mayoreo $%s   Precio Menudeo: $%s \n\n",i+1, productos[i][0], productos[i][1], productos[i][2], productos[i][3]);
     }
  
 }
-
+ 
 void mostrar_Error(){
     printf("\n>>>Error - sistema no acepta la opcion\n");
     fflush(stdin);
@@ -154,20 +154,24 @@ void finalizar_Comprar(float subtotal,int cantidadTotalProducto, int v, int c) {
     float cantidadRecibida, pagoTotal, cambio;
 
     // fecha para luego firtral en el reporte, CHISPASSSSS
-    printf("Dia (1-31): ");   scanf("%d", &d);
-    printf("Mes (1-12): ");   scanf("%d", &m);
-    printf("Year (Ejemplo. 2025): "); scanf("%d", &a);
-
-    printf("Total a pagar: %.2f\n", subtotal);
+    system("cls");
+    printf("---------------------------------------------------------------------\n");
+    printf("|                         FINALIZAR COMPRA                          |\n");
+    printf("---------------------------------------------------------------------\n\n");
+    printf("    Dia (1-31): ");   scanf("%d", &d);
+    printf("    Mes (1-12): ");   scanf("%d", &m);
+    printf("    Year (Ejemplo. 2025): "); scanf("%d", &a);
+    printf("---------------------------------------------------------------------\n\n");
+    printf("Total a pagar:  $%.2f\n", subtotal);
     do {
-        printf("Pago recibido: ");
-        scanf("%f", &cantidadRecibida);
+        printf("Pago recibido:  $"), scanf("%f", &cantidadRecibida);
         pagoTotal+=cantidadRecibida;
         if (pagoTotal < subtotal)
             printf("  Faltan %.2f\n", subtotal - pagoTotal);
     } while (pagoTotal <= subtotal);
     cambio = (subtotal - pagoTotal) * -1;
-    printf("Cambio: %.2f\n\n", cambio);
+    printf("---------------------------------------------------------------------\n\n");
+    printf("Cambio:         $%.2f\n\n", cambio);
 
     // abirmos el archimo que esta sepado por comas y comas
     FILE *f = fopen("ventas.csv", "a");
@@ -191,46 +195,64 @@ void registrarCompra(){
     float precioProducto=0,precioTotalProducto=0, subtotal=0, total= 0;
     while (opcionProducto!=0){
 
-        do{
+       
         opcionProducto = 0, cantidadXProducto = 0;
         system("cls");
         printf("\n Cuenta del cliente: %s---", clientes_vendedores[v][1][c][1] );
         mostrar_Menu_Productos();
+        printf("\n  0- Salir al menu \n");
+        printf("  6- Borrar venta(Completa) \n");
+        printf("  7- Finalizar compra \n");
         printf("Elige el numero del producto a elegir: "), scanf("%d",&opcionProducto);
-        if (opcionProducto > 6 || opcionProducto < 0){
+        if (opcionProducto > 7 || opcionProducto < 0){
             /* code */
             printf("Entro al if");
             mostrar_Error();
         }else if(opcionProducto == 0){
             break;
-        }else if(opcionProducto == 6){
+        }else if(opcionProducto == 6 ){
+            // BORRAR toda la venta actual
+            subtotal      = 0.0f;
+            total         = 0.0f;
+            cantidadTotal = 0;
+            printf("\n>>> Venta actual borrada. Se han reiniciado todos los valores.\n\n");
+            system("pause");
+            continue; 
+        }else if(opcionProducto == 7){
             finalizar_Comprar(subtotal,cantidadTotal, v, c);
             break;
-        }
-    }while (opcionProducto < 0 || opcionProducto > 6);
-
-        printf(" Cantidad a escojer: "), scanf("%d", &cantidadXProducto);
-        cantidadTotal+=cantidadXProducto;
-        if(cantidadXProducto>=3 && cantidadXProducto <= 50){
-            //Se activa el mayoreo
-            precioProducto = atof(productos[opcionProducto-1][2]);
-        }else if (cantidadXProducto > 0 ){
-            //No se activa el mayoreo pipipipipi
-            precioProducto = atof(productos[opcionProducto-1][3]);
         }else{
-            printf("----ERROR----");
-        }
-        precioTotalProducto =   precioProducto * cantidadXProducto; 
-        subtotal+= precioTotalProducto;
-        total+=subtotal;
-        
-        printf("\nResumen parcial:\n");
-        printf("Producto: %s\n", productos[opcionProducto-1][0]);
-        printf("Cantidad: %d\n", cantidadXProducto);
-        printf("Precio unitario: %.2f\n", precioProducto);
-        printf("Total producto: %.2f\n", precioTotalProducto);
-        printf("Subtotal acumulado: %.2f\n\n", subtotal);
+            printf(" Cantidad a escojer: "), scanf("%d", &cantidadXProducto);
+            cantidadTotal+=cantidadXProducto;
+            if(cantidadXProducto>=3 && cantidadXProducto <= 50){
+                //Se activa el mayoreo
+                precioProducto = atof(productos[opcionProducto-1][2]);
+            }else if (cantidadXProducto > 0 ){
+                //No se activa el mayoreo pipipipipi
+                precioProducto = atof(productos[opcionProducto-1][3]);
+            }else{
+                printf("----ERROR----");
+            }
+            precioTotalProducto =   precioProducto * cantidadXProducto; 
+            subtotal+= precioTotalProducto;
+            total+=subtotal;
+            
 
+            printf("---------------------------------------------------------------------\n");
+            printf("|                           RESUMEN PACIAL                          |\n");
+            printf("---------------------------------------------------------------------\n");
+            printf("    Producto:  %s\n", productos[opcionProducto-1][0]);
+            printf("    Cantidad:           %d\n", cantidadXProducto);
+            printf("    Precio unitario:    %.2f\n", precioProducto);
+            printf("    Total producto:     %.2f\n", precioTotalProducto);
+            printf("----------------------------------------------------------------------\n");
+            printf("    Subtotal acumulado: %.2f\n\n", subtotal);
+            system("pause");
+
+        }
+    
+
+            
     }
      
 }
@@ -239,7 +261,11 @@ void mostrar_reporte_mensual(){
     
     int mesBuscado;
     char linea[64]; // maximo de caracteres leeidos por linea en el archivo
-    
+    system("cls");
+    printf("---------------------------------------------------------------------\n");
+    printf("|                           REPORTE MESUAL                          |\n");
+    printf("---------------------------------------------------------------------\n");
+
     printf("Que mes (1-12) quieres reportar? "), scanf("%d", &mesBuscado);
 
     // abrir el archivo             R de read en inglish
@@ -248,8 +274,10 @@ void mostrar_reporte_mensual(){
         printf("No se encontró el archivo ventas.csv\n");
         return;
     }
+    
+    
+    printf("\n  Ventas del mes %d:\n\n", mesBuscado);
 
-    printf("\nVentas del mes %d:\n", mesBuscado);
     int day, month, year, v, c, qty, cont = 0; // los datos que vamos a recibir del archivo .cvs, execto el cont ese es un contador para un ciclo
     float total, totalVendedor;
 
@@ -307,10 +335,16 @@ float total_Venta_Vendedor(int IdVendedor, int mes){
 void calcular_Nomina(){
     int v = 0,m, horasTrabajadas=0;
     float pagoHora= 60, ventaTotalV,bonoVentas, bonoGas=200.00, subsueldo, impuesto, totalSueldo;
+    system("cls");
+    printf("---------------------------------------------------------------------\n");
+    printf("|                           CALCULAR NOMINA                         |\n");
+    printf("---------------------------------------------------------------------\n");
+    system("pause");
     v = seleccionar_Vendedor();
-    printf("¿Mes (1-12)? ");      scanf("%d", &m);
+    printf("---------------------------------------------------------------------\n");
+    printf("Mes (1-12)?: "), scanf("%d", &m);
     
-    printf("Cuantas horas trabajo(Di un numero entero)"), scanf("%d", &horasTrabajadas);
+    printf("Cuantas horas trabajo(Di un numero de horas enterras): "), scanf("%d", &horasTrabajadas);
     subsueldo = pagoHora * horasTrabajadas;
     impuesto = subsueldo * 0.10;
 
@@ -321,15 +355,15 @@ void calcular_Nomina(){
     totalSueldo-=impuesto;
     totalSueldo+=bonoGas;
     totalSueldo+=bonoVentas;
-
-    printf("Sueldo base    (%d h x %.2f) : %.2f\n",
-           horasTrabajadas, pagoHora, subsueldo);
-    printf("(-) Retencion 10%%          : -%.2f\n", impuesto);
-    printf("(+) Bono gasolina         : +%.2f\n", bonoGas);
-    printf("(+) Comision 5%% sobre %.2f : +%.2f\n",
-           ventaTotalV, bonoVentas);
-    printf("------------------------------\n");
-    printf("= Sueldo neto            :  %.2f\n\n", totalSueldo);
+    printf("---------------------------------------------------------------------\n");
+    printf("                       RESUMEN DE NOMINA\n");
+    printf("---------------------------------------------------------------------\n");
+    printf("Sueldo base    (%d h x %.2f) : $%.2f\n",horasTrabajadas, pagoHora, subsueldo);
+    printf("(-) Retencion 10%%          :    -%.2f\n", impuesto);
+    printf("(+) Bono gasolina         :     +%.2f\n", bonoGas);
+    printf("(+) Comision 5%% sobre %.2f : +%.2f\n", ventaTotalV, bonoVentas);
+    printf("----------------------------------------------------------------------\n");
+    printf("  Sueldo neto               :  $%.2f\n\n", totalSueldo);
 
 }
 
@@ -339,6 +373,7 @@ int main(){
     int opcion;
      do {
         printf("\n");
+        system("cls");
         printf("=================================================================\n");
         printf("|                                                               |\n");
         printf("|                 SISTEMA DE VENTAS - EMPRESA                   |\n");
@@ -356,16 +391,13 @@ int main(){
 
         switch (opcion) {
             case 1:
-                printf("\n-- REGISTRO DE COMPRA --\n");
+                //printf("\n-- REGISTRO DE COMPRA --\n");
                 registrarCompra();
-                //suma = atof(productos[0][2]) + atof(productos[0][3]);
-                //printf("%.2f", suma);
                 system("pause");
                 break;
             case 2:
-                printf("\n-- REPORTE DE VENTAS --\n");
+                //printf("\n-- REPORTE DE VENTAS --\n");
                 mostrar_reporte_mensual();
-
                 system("pause");
                 break;
             case 3:

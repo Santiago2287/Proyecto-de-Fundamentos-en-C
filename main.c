@@ -91,21 +91,39 @@ char productos[NUM_PRODUCTOS][NUM_ATRIBUTOS][CAPACIDAD_MAX]={
 
 
 void mostrar_Menu_Productos(){
+        system("cls");
+        printf("---------------------------------------------------------------------\n");
+        printf("|                         LISTA DE ARTICULOS                        |\n");
+        printf("---------------------------------------------------------------------\n");
     for(int i=0;i < NUM_PRODUCTOS; i++){
-        printf("  %d-Nombre del Producto: %s \n    Descripcion: %s \n    Precio mayoreo %s Precio Menudeo: %s \n\n",i+1, productos[i][0], productos[i][1], productos[i][2], productos[i][3]);
+        printf("  %d- Nombre del Producto: %s \n    Descripcion: %s \n    Precio mayoreo $%s   Precio Menudeo: $%s \n\n",i+1, productos[i][0], productos[i][1], productos[i][2], productos[i][3]);
     }
  
 }
 
+void mostrar_Error(){
+    printf("\n>>>Error - sistema no acepta la opcion\n");
+    fflush(stdin);
+    system("pause");
+}
+ 
 int seleccionar_Vendedor(){
     int v=0;
+    system("cls");
     do{
-        printf("Vendedores en el sistema: \n");
+        system("cls");
+        printf("---------------------------------------------------------------------\n");
+        printf("|                     VENDEDORES EN EL SISTEMA                      |\n");
+        printf("---------------------------------------------------------------------\n");
         for(int i=0;i < 3; i++){
-            printf("    %d-.  Nombre:  %s  Contacto: %s\n", i+1, clientes_vendedores[i][0][0][1],  clientes_vendedores[i][0][0][2]);    // Vendedor Nombre y contacto 
+            printf("    %d-  Nombre:  %s  Contacto: %s \n", i+1, clientes_vendedores[i][0][0][1],  clientes_vendedores[i][0][0][2]);    // Vendedor Nombre y contacto 
         }
-        printf("Seleccione el numero del vendedor: ");
+        printf("Seleccione el numero del vendedor(1-3): ");
         scanf("%d",&v);
+        if (v < 1 || v > 3){
+            mostrar_Error();
+        }
+        
     }while (v < 1 || v > 3);
     return v-1;
 }
@@ -113,12 +131,20 @@ int seleccionar_Vendedor(){
 int seleccionar_cliente(int v){
     int c = 0;
     do{
-        printf("Clientes del vendedores seleccionado: \n");
+        system("cls");
+        printf("---------------------------------------------------------------------\n");
+        printf("|                       CLIENTES DEL VENDEDOR                       |\n");
+        printf("---------------------------------------------------------------------\n");
+        printf("Los clientes del vendedores -%s: \n", clientes_vendedores[v][0][0][1]);
         for(int i=0;i < 4; i++){
             printf("    %d-.  Nombre:  %s  Contacto: %s\n", i + 1, clientes_vendedores[v][1][i][1],  clientes_vendedores[v][1][i][2]);    // Vendedor Nombre y contacto 
         }
-        printf("Seleccione el numero del cliente de la compra: ");
+        printf("Seleccione el numero del cliente de la compra(1-4): ");
         scanf("%d",&c);
+
+        if (c < 1 || c > 4){
+            mostrar_Error();
+        }
     }while (c < 1 || c > 4);
     return c-1;
 }
@@ -159,20 +185,30 @@ void finalizar_Comprar(float subtotal,int cantidadTotalProducto, int v, int c) {
 void registrarCompra(){
     int v = seleccionar_Vendedor();
     int c = seleccionar_cliente(v);
-    mostrar_Menu_Productos();
-    printf("\n %s", clientes_vendedores[v][1][c][1] );
+
+    //mostrar_Menu_Productos();
     int opcionProducto = 1, cantidadTotal = 0 , cantidadXProducto;
     float precioProducto=0,precioTotalProducto=0, subtotal=0, total= 0;
     while (opcionProducto!=0){
-        
+
+        do{
         opcionProducto = 0, cantidadXProducto = 0;
+        system("cls");
+        printf("\n Cuenta del cliente: %s---", clientes_vendedores[v][1][c][1] );
+        mostrar_Menu_Productos();
         printf("Elige el numero del producto a elegir: "), scanf("%d",&opcionProducto);
-        if(opcionProducto==0){
+        if (opcionProducto > 6 || opcionProducto < 0){
+            /* code */
+            printf("Entro al if");
+            mostrar_Error();
+        }else if(opcionProducto == 0){
             break;
-        }else if(opcionProducto==5){
+        }else if(opcionProducto == 6){
             finalizar_Comprar(subtotal,cantidadTotal, v, c);
             break;
         }
+    }while (opcionProducto < 0 || opcionProducto > 6);
+
         printf(" Cantidad a escojer: "), scanf("%d", &cantidadXProducto);
         cantidadTotal+=cantidadXProducto;
         if(cantidadXProducto>=3 && cantidadXProducto <= 50){
@@ -303,15 +339,19 @@ int main(){
     int opcion;
      do {
         printf("\n");
-        printf("========================================\n");
-        printf("|        SISTEMA DE VENTAS - EMPRESA   |\n");
-        printf("========================================\n");
-        printf("| 1. Registrar compra de cliente       |\n");
-        printf("| 2. Mostrar reporte mensual de ventas |\n");
-        printf("| 3. Calcular nomina de vendedores     |\n");
-        printf("| 4. Salir del sistema                 |\n");
-        printf("========================================\n");
-        printf("Seleccione una opcion: ");
+        printf("=================================================================\n");
+        printf("|                                                               |\n");
+        printf("|                 SISTEMA DE VENTAS - EMPRESA                   |\n");
+        printf("|                                                               |\n");
+        printf("=================================================================\n");
+        printf("|                 Opciones del sistema:                         |\n");
+        printf("| 1. Registrar compra de cliente                                |\n");
+        printf("| 2. Mostrar reporte mensual de ventas                          |\n");
+        printf("| 3. Calcular nomina de vendedores                              |\n");
+        printf("| 4. Salir del sistema                                          |\n");
+        printf("|                                                               |\n");
+        printf("=================================================================\n");
+        printf("Seleccione una opcion(1-4): ");
         scanf("%d", &opcion); 
 
         switch (opcion) {
@@ -339,6 +379,7 @@ int main(){
                 break;
             default:
                 printf("\nOpcion no valida. Intente de nuevo.\n");
+                system("pause");
                 break;
         }
     } while (opcion != 4);
